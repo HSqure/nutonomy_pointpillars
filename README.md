@@ -48,7 +48,7 @@ And Then, you can run train or evaluation or onnx model generate command line.
 #### 1. Clone code
 
 ```bash
-git clone https://github.com/SmallMunich/nutonomy_pointpillars.git
+git clone https://github.com/HSqure/nutonomy_pointpillars.git
 ```
 
 #### 2. Install Python packages
