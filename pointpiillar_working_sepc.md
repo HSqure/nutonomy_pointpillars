@@ -1,9 +1,9 @@
 # 模型输入数据
 工程中模型的输入数据是多个dict数据的集合，主要包括下面几部分：
 ```
-eval example [0: 'voxels', 1: 'num_points', 2: 'coordinates', 3: 'rect', 
+eval example {0: 'voxels', 1: 'num_points', 2: 'coordinates', 3: 'rect', 
         	  4: 'Trv2c', 5: 'P2', 6: 'anchors', 7: 'anchors_mask', 
-        	  8: 'image_idx', 9: 'image_shape']
+        	  8: 'image_idx', 9: 'image_shape'}
 ```
 ### 1.voxel体素数据
 ```
@@ -11,7 +11,7 @@ voxel(voxel_num,   # voxel的数目，每幅点云图的voxel数目都不一样
       max_points,  # 每个voxel中最大点的数目，预先设定，工程中设为100
       ndim)        # 点云数据的ndim，KITTI数据集中是4，代表x,y,z,r，即标准的KITTI点云数据格式
 ```
-其实应该叫**`pillar`**数据，因为代码是继承自second，所以本文的voxel数据都可以理解为`pillar`数据，为了和工程一致，本文还是以`voxel`数据说明。
+其实应该叫`pillar`数据，因为代码是继承自second，所以本文的voxel数据都可以理解为`pillar`数据，为了和工程一致，本文还是以`voxel`数据说明。
 工程中通过`points_to_voxel-->_points_to_voxel_reverse_kernel`函数将KITTI点云数据points转化为voxel，其中
 `_points_to_voxel_reverse_kernel`通过`numba.jit`加速。
 
@@ -98,10 +98,10 @@ y_sub = coors_y.unsqueeze(1) * 0.16 - 39.6
 ```
 ### 5.网络输入数据`Tensor(D, P, N)`
 
-每个`pillar`中对多余**`N`**的进行采样，少于**`N`**的进行补0，于是就形成了**`(D, P, N)`**的Tensor
-**`D`**是特征维度等于9，**`P`**是xy二维平面`pillar`数目`HxW`
-（实际代码中进行卷积的**`P`**等于`voxel_num`，最后需要reshape成`HxW`），
-**`N`**是每个`pillar`采样点数目，工程中等于`100`。
+每个`pillar`中对多余`N`的进行采样，少于`N`的进行补0，于是就形成了`(D, P, N)`的Tensor
+`D`是特征维度等于9，`P`是xy二维平面`pillar`数目`HxW`
+（实际代码中进行卷积的`P`等于`voxel_num`，最后需要reshape成`HxW`），
+`N`是每个`pillar`采样点数目，工程中等于`100`。
 
 
 ---
