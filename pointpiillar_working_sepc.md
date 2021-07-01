@@ -234,3 +234,4 @@ dir_cls_preds (batch, h, w, num_anchor_per_loc * 2)
 `fmap`每个点回归出2个框，每个框2个方向。
 
 
+>本说明整理至知乎网友[硅仙人](https://www.zhihu.com/people/wang-ji-chen)的文章：[代码层面解读3D点云物体检测模型：PointPillars](https://zhuanlan.zhihu.com/p/357713061)。
