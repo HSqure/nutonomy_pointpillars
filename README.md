@@ -29,7 +29,7 @@ If you do not waste time on pointpillars envs, please pull my docker virtual env
 ```bash
 docker pull smallmunich/suke_pointpillars:v1 
 ```
-after installation:
+After installation:
 ```
 docker_run smallmunich/suke_pointpillars:v1
 ```
