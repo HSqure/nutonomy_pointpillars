@@ -236,4 +236,4 @@ dir_cls_preds (batch, h, w, num_anchor_per_loc * 2)
 
 ---
 
->本说明整理至知乎网友[硅仙人](https://www.zhihu.com/people/wang-ji-chen)的文章：[代码层面解读3D点云物体检测模型：PointPillars](https://zhuanlan.zhihu.com/p/357713061)。
+>本说明文档非原创，整理至知乎网友[硅仙人](https://www.zhihu.com/people/wang-ji-chen)的文章：[代码层面解读3D点云物体检测模型：PointPillars](https://zhuanlan.zhihu.com/p/357713061)。
