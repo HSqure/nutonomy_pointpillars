@@ -1,4 +1,4 @@
-# PointPillars Pytorch Model Convert To ONNX, And Using TensorRT to Load this IR(ONNX) for Fast Speeding Inference
+# PointPillars Pytorch
 
 Welcome to PointPillars(This is origin from nuTonomy/second.pytorch ReadMe.txt).
 
@@ -7,55 +7,30 @@ This repo demonstrates how to reproduce the results from
 [KITTI dataset](http://www.cvlibs.net/datasets/kitti/) by making the minimum required changes from the preexisting
 open source codebase [SECOND](https://github.com/traveller59/second.pytorch). 
 
-Meanwhile, This part of the code also refers to the open source k0suke-murakami (https://github.com/k0suke-murakami/train_point_pillars) this code. 
-
 This is not an official nuTonomy codebase, but it can be used to match the published PointPillars results.
 
 **WARNING: This code is not being actively maintained. This code can be used to reproduce the results in the first version of the paper, https://arxiv.org/abs/1812.05784v1. For an actively maintained repository that can also reproduce PointPillars results on nuScenes, we recommend using [SECOND](https://github.com/traveller59/second.pytorch). We are not the owners of the repository, but we have worked with the author and endorse his code.**
 
-![Example Results](https://github.com/SmallMunich/nutonomy_pointpillars/blob/master/images/pointpillars_kitti_results.png)
 
-
-## Getting Started
+## Getting Started!
 
 This is a fork of [SECOND for KITTI object detection](https://github.com/traveller59/second.pytorch) and the relevant
 subset of the original README is reproduced here.
 
+___
 
-### Docker Environments
+### PART1.环境配置
 
-If you do not waste time on pointpillars envs, please pull this docker virtual environments :
-
-```bash
-docker pull smallmunich/suke_pointpillars:v1 
-```
-After installation:
-```
-docker_run smallmunich/suke_pointpillars:v1
-```
-
-Attention: when you launch this docker envs, please run this command :
-
-```bash 
-conda activate pointpillars 
-```
-
-And Then, you can run train or evaluation or onnx model generate command line.
-
-
-### Install
-
-#### 1. Clone code
+#### 1. Clone本工程
 
 ```bash
-git clone https://github.com/HSqure/nutonomy_pointpillars.git
+git clone https://github.com/SmallMunich/nutonomy_pointpillars.git
 ```
 
-#### 2. Install Python packages
+#### 2.安装所需 Python 拓展包
+推荐使用** Anaconda package manager **。
 
-It is recommend to use the Anaconda package manager.
-
-First, use Anaconda to configure as many packages as possible.
+** Anaconda: **
 ```bash
 conda create -n pointpillars python=3.6 anaconda
 source activate pointpillars
@@ -63,20 +38,10 @@ conda install shapely pybind11 protobuf scikit-image numba pillow
 conda install pytorch torchvision -c pytorch
 conda install google-sparsehash -c bioconda
 ```
-
-Then use pip for the packages missing from Anaconda.
+** Pipe: **
 ```bash
 pip install --upgrade pip
 pip install fire tensorboardX
-```
-
-Finally, install SparseConvNet. This is not required for PointPillars, but the general SECOND code base expects this
-to be correctly configured. However, I suggest you install the spconv instead of SparseConvNet.
-```bash
-git clone git@github.com:facebookresearch/SparseConvNet.git
-cd SparseConvNet/
-bash build.sh
-# NOTE: if bash build.sh fails, try bash develop.sh instead
 ```
 
 Additionally, you may need to install Boost geometry:
@@ -86,9 +51,9 @@ sudo apt-get install libboost-all-dev
 ```
 
 
-#### 3. Setup cuda for numba
+#### 3. numba的CUDA设置
 
-You need to add following environment variables for numba to ~/.bashrc:
+You need to add following environment variables for numba to `~/.bashrc`:
 
 ```bash
 export NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
@@ -96,58 +61,92 @@ export NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
 export NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
 ```
 
-#### 4. PYTHONPATH
+#### 4. PYTHON PATH
 
 Add nutonomy_pointpillars/ to your PYTHONPATH.
 
 ```bash 
 export PYTHONPATH=$PYTHONPATH:/your_root_path/nutonomy_pointpillars/
 ```
+---
+### PART2.KITTI数据集准备
 
-### Prepare dataset
-
-#### 1. Dataset preparation
-
-Download KITTI dataset and create some directories first:
-
+KITTI Dataset概览:
 ```plain
-└── KITTI_DATASET_ROOT
-       ├── training    <-- 7481 train data
-       |   ├── image_2 <-- for visualization
-       |   ├── calib
-       |   ├── label_2
-       |   ├── velodyne
-       |   └── velodyne_reduced <-- empty directory
-       └── testing     <-- 7580 test data
-           ├── image_2 <-- for visualization
-           ├── calib
-           ├── velodyne
-           └── velodyne_reduced <-- empty directory
+$KITTI_DATASET_ROOT
+ ├── testing # 7580 test data
+ │   ├── calib
+ │   ├── image_2  # for visualization
+ │   ├── velodyne # point cloud bin file
+ │   └── velodyne_reduced # empty directory
+ └── training
+     ├── calib  # 7481 train data
+     ├── image_2
+     ├── label_2
+     ├── velodyne
+     └── velodyne_reduced # empty directory
+
 ```
+其中training目录是有标注的数据（标注数据目录是label_2），工程中training和evaluate用的都是training目录下的数据；testing目录下面都是没有标注的数据，可以用来测测模型的检测效果（需要自己写可视化代码看看最终的检测结果）。
 
-Note: PointPillar's protos use ```KITTI_DATASET_ROOT=/data/sets/kitti_second/```.
+在工程根目录下进入子目录`second`，通过下面几条命令创建info数据。
 
-#### 2. Create kitti infos:
+#### 1.创建.pkl参数文件
 
 ```bash
-python create_data.py create_kitti_info_file --data_path=KITTI_DATASET_ROOT
+python create_data.py create_kitti_info_file --data_path=$KITTI_DATASET_ROOT
 ```
 
-#### 3. Create reduced point cloud:
+在`$KITTI_DATASET_ROOT`目录下创建:
+`kitti_infos_train.pkl`、
+`kitti_infos_val.pkl`、
+`kitti_infos_trainval.pkl`、
+`kitti_infos_test.pkl`
+四个`.bin`文件，每个`.bin`文件包含了**图片的路径**、**calib中Camera和Lidar的标定参数**等。
+
+
+#### 2.生成裁减后的数据副本
 
 ```bash
-python create_data.py create_reduced_point_cloud --data_path=KITTI_DATASET_ROOT
+python create_data.py create_reduced_point_cloud --data_path=$KITTI_DATASET_ROOT
 ```
 
-#### 4. Create groundtruth-database infos:
+在`$KITTI_DATASET_ROOT/training/velodyne_reduced`和`$KITTI_DATASET_ROOT/testing/velodyne_reduced`目录下分别创建它们同级velodyne目录中点云`.bin`文件的reduce版本，去掉了点云数据中一些冗余的背景等数据，可以认为是经过裁剪的点云数据。
+
+#### 3.生成GroundTruth数据
 
 ```bash
-python create_data.py create_groundtruth_database --data_path=KITTI_DATASET_ROOT
+python create_data.py create_groundtruth_database --data_path=$KITTI_DATASET_ROOT
 ```
 
-#### 5. Modify config file
+在`$KITTI_DATASET_ROOT`目录下创建`kitti_dbinfos_train.pkl`数据。在训练代码中的`input_cfg.database_sampler`变量中用到。
 
-The config file needs to be edited to point to the above datasets:
+完成步骤后的dataset概览：
+```plain
+$KITTI_DATASET_ROOT
+ ├── kitti_dbinfos_train.pkl  # step 03
+ ├── kitti_infos_test.pkl # step 01
+ ├── kitti_infos_train.pkl # step 01
+ ├── kitti_infos_trainval.pkl # step 01
+ ├── kitti_infos_val.pkl # step 01
+ ├── gt_database # step 03
+ ├── testing
+ │   ├── calib
+ │   ├── image_2  
+ │   ├── velodyne 
+ │   └── velodyne_reduced # step 02
+ └── training
+     ├── calib 
+     ├── image_2
+     ├── label_2
+     ├── velodyne
+     └── velodyne_reduced # step 02
+
+```
+
+#### 4. 修改配置文件
+配置文件路径:`second/configs/pointpillars/car/xyres_16.proto`。
+需在以下部份包含前面生成的所有的数据集`.pkl`文件。
 
 ```bash
 train_input_reader: {
@@ -167,9 +166,9 @@ eval_input_reader: {
 }
 ```
 
-
-### Train
-
+---
+### PART3.模型训练与评估
+#### 1. 训练 Training
 ```bash
 cd ~/second.pytorch/second
 python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
@@ -182,7 +181,7 @@ python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_1
 * On a single 1080Ti, training xyres_16 requires approximately 20 hours for 160 epochs.
 
 
-### Evaluate
+#### 2. 评估 Evaluate
 
 
 ```bash
@@ -193,81 +192,11 @@ python pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_1
 * Detection result will saved in model_dir/eval_results/step_xxx.
 * By default, results are stored as a result.pkl file. To save as official KITTI label format use --pickle_result=False.
 
-### ONNX IR Generate
 
-### pointpillars pytorch model convert to IR onnx, you should verify some code as follows:
 
-this python file is : second/pyotrch/models/voxelnet.py
+### 参考
 
-```bash
-        voxel_features = self.voxel_feature_extractor(pillar_x, pillar_y, pillar_z, pillar_i,
-                                                      num_points, x_sub_shaped, y_sub_shaped, mask)
-
-        ###################################################################################
-        # return voxel_features ### onnx voxel_features export
-        # middle_feature_extractor for trim shape
-        voxel_features = voxel_features.squeeze()
-        voxel_features = voxel_features.permute(1, 0)
-```  
-
-UNCOMMENT this line: return voxel_features 
-
-And Then, you can run convert IR command.
-
-```bash
-cd ~/second.pytorch/second/
-python pytorch/train.py onnx_model_generate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
-```
-
-### Compare ONNX model With Pytorch Origin model predicts 
-
-* If you want to check this convert model about pfe.onnx and rpn.onnx model, please refer to this py-file: check_onnx_valid.py 
-
-* Now, we can compare onnx results with pytorch origin model predicts as follows : 
-
-* the pfe.onnx and rpn.onnx predicts file is located: "second/pytorch/onnx_predict_outputs", you can see it carefully.
-```bash
-    eval_voxel_features.txt 
-    eval_voxel_features_onnx.txt 
-    eval_rpn_features.txt 
-    eval_rpn_onnx_features.txt 
-```
-
-* pfe.onnx model compare with origin pfe-layer : 
-![Example Results](https://github.com/SmallMunich/nutonomy_pointpillars/blob/master/images/voxel_features.jpg)
-
-* rpn.onnx model compare with origin rpn-layer : 
-![Example Results](https://github.com/SmallMunich/nutonomy_pointpillars/blob/master/images/rpn_features.jpg)
-
-### Compare ONNX with TensorRT Fast Speed Inference 
-
-* First you needs this environments(onnx_tensorrt envs):
-
-```bash
-      docker pull smallmunich/onnx_tensorrt:latest
-```
-
-* If you want to use pfe.onnx and rpn.onnx model for tensorrt inference, please refer to this py-file: tensorrt_onnx_infer.py 
-
-* Now, we can compare onnx results with pytorch origin model predicts as follows : 
-
-* the pfe.onnx and rpn.onnx predicts file is located: "second/pytorch/onnx_predict_outputs", you can see it carefully.
-```bash
-    pfe_rpn_onnx_outputs.txt 
-    pfe_tensorrt_outputs.txt 
-    rpn_onnx_outputs.txt 
-    rpn_tensorrt_outputs.txt 
-```
-
-* pfe.onnx model compare with tensorrt pfe-layer : 
-![Example Results](https://github.com/SmallMunich/nutonomy_pointpillars/blob/master/images/pfe_trt.jpg)
-
-* rpn.onnx model compare with tensorrt rpn-layer : 
-![Example Results](https://github.com/SmallMunich/nutonomy_pointpillars/blob/master/images/rpn_trt.jpg)
-
-### Blog Address
-
-* More Details will be update on my chinese blog:
+>* More Details will be update on my chinese blog:
 * export from pytorch to onnx IR blog : https://blog.csdn.net/Small_Munich/article/details/101559424  
 * onnx compare blog : https://blog.csdn.net/Small_Munich/article/details/102073540
 * tensorrt compare blog : https://blog.csdn.net/Small_Munich/article/details/102489147
