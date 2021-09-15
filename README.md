@@ -170,7 +170,7 @@ eval_input_reader: {
 ### PART3.模型训练与评估
 #### 1. 训练 Training
 ```bash
-cd ~/second.pytorch/second
+cd second
 python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
@@ -185,7 +185,7 @@ python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_1
 
 
 ```bash
-cd ~/second.pytorch/second/
+cd second/
 python pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
