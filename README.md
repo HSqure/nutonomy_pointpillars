@@ -197,8 +197,8 @@ python pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_1
 ### 参考
 
 >* More Details will be update on my chinese blog:
-* export from pytorch to onnx IR blog : https://blog.csdn.net/Small_Munich/article/details/101559424  
-* onnx compare blog : https://blog.csdn.net/Small_Munich/article/details/102073540
-* tensorrt compare blog : https://blog.csdn.net/Small_Munich/article/details/102489147
-* wait for update & best wishes.
+> * export from pytorch to onnx IR blog : https://blog.csdn.net/Small_Munich/article/details/101559424  
+> * onnx compare blog : https://blog.csdn.net/Small_Munich/article/details/102073540
+> * tensorrt compare blog : https://blog.csdn.net/Small_Munich/article/details/102489147
+> * wait for update & best wishes.
 
