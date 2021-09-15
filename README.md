@@ -28,9 +28,9 @@ git clone https://github.com/HSqure/nutonomy_pointpillars.git
 ```
 
 #### 2.安装所需 Python 拓展包
-推荐使用** Anaconda package manager **。
+推荐使用**Anaconda package manager**。
 
-** Anaconda: **
+**Anaconda:**
 ```bash
 conda create -n pointpillars python=3.6 anaconda
 source activate pointpillars
@@ -38,7 +38,7 @@ conda install shapely pybind11 protobuf scikit-image numba pillow
 conda install pytorch torchvision -c pytorch
 conda install google-sparsehash -c bioconda
 ```
-** Pipe: **
+**Pipe:**
 ```bash
 pip install --upgrade pip
 pip install fire tensorboardX
