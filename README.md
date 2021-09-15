@@ -24,7 +24,7 @@ ___
 #### 1. Clone本工程
 
 ```bash
-git clone https://github.com/SmallMunich/nutonomy_pointpillars.git
+git clone https://github.com/HSqure/nutonomy_pointpillars.git
 ```
 
 #### 2.安装所需 Python 拓展包
