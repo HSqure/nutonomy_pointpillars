@@ -73,6 +73,14 @@ def forward(self, voxel_features, coords):
     batch_canvas = batch_canvas.view(2, self.nchannels, self.ny, self.nx)
     return batch_canvas
 ```
+* 通过把二维坐标展平成一维，再把voxel装到batch_canvas里面
+
+* 会出现很多值为0的“空”pillar
+
+* 最后reshape成spatial_features (batch, 64, H, W)
+
+    
+
 
 ## 2. Backbone& Detection Head
 - backbone用的就是RPN。
